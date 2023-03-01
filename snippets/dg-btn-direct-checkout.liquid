@@ -1,0 +1,113 @@
+<button class="btn btn-primary button dg-btn-direct-checkout"> <strong>BUY NOW ➔</strong>
+
+</button>
+
+<style>
+  .dg-btn-direct-checkout {
+  border: solid;
+  border color:#E49818; 
+  color: #E49818;
+}
+
+.dg-btn-direct-checkout {
+  /* modifiez le code hexadecimal du fond du bouton et le scale pour l'intensité du zoom au survol */
+  --dg-btn-direct-checkout-bg-color: #FFFFF;
+  --dg-btn-direct-checkout-scale: 1.01; 
+  /* 1 for reset or 1.01 max */
+}
+
+.dg-btn-direct-checkout {
+  width:100%;
+  background:var(--dg-btn-direct-checkout-bg-color); 
+  transition: filter .1s;
+}
+.dg-btn-direct-checkout:hover {
+  filter: brightness(105%); 
+  scale:var(--dg-btn-direct-checkout-scale);
+}
+@media screen and (min-width: 750px) {
+  .product-form .product-form__buttons {
+    display:flex;
+    gap:1rem;
+    max-width:100%;
+  }
+  .product-form__buttons > button {
+    margin:0;
+  } 
+}
+.product-form__buttons > .dg-btn-direct-checkout::before, .product-form__buttons > .dg-btn-direct-checkout::after {
+  display:none;
+}
+  
+</style>
+
+<script>
+  
+if ((typeof window.DG) == 'undefined') { window.DG = {} }
+  
+DG.FetchifyCart = (btnClass) => {  
+  
+  const btn = document.querySelector(btnClass);
+  const form = btn.closest('form');
+
+  if(!form.length > 0) return
+
+  const serialize = (data) => {
+    let obj = {};
+    for (let [key, value] of data) {
+      if (obj[key] !== undefined) {
+        if (!Array.isArray(obj[key])) {
+          obj[key] = [obj[key]];
+        }
+        obj[key].push(value);
+      } else {
+        obj[key] = value;
+      }
+    }
+    return obj;
+  }
+
+  const setText = (state) => {
+    if(state === "fail") {
+      return btn.innerHTML = `No stock or error`;      
+    }
+    btn.innerHTML = `<svg version="1.1" id="L9" xmlns="http://www.w3.org/2000/svg" width="31" height="31" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 100 100" enable-background="new 0 0 0 0" xml:space="preserve"> <path fill="#fff" d="M73,50c0-12.7-10.3-23-23-23S27,37.3,27,50 M30.9,50c0-10.5,8.5-19.1,19.1-19.1S69.1,39.5,69.1,50"> <animateTransform attributeName="transform" attributeType="XML" type="rotate" dur="1s" from="0 50 50" to="360 50 50" repeatCount="indefinite"/> </path> </svg>`;
+  }
+
+  const addItemToCart = async (form) => {
+
+    data = new FormData(form);
+    let formObj = serialize(data);
+  
+    let addData = {
+      'id':formObj.id,
+      'quantity':formObj.quantity
+    };
+    
+    await fetch('/cart/add.js', {
+      body: JSON.stringify(addData),
+      credentials: 'same-origin',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Requested-With':'xmlhttprequest'
+      },
+      method: 'POST'
+    }).then(function(response) {
+      return response.json();
+    }).then(function(json) {
+      setText('success');
+      setTimeout(() => { window.location.href = "/checkout"; }, 300);
+    }).catch(function(err) {
+      console.error(err);
+      setText('fail');
+    });
+  }
+  
+  btn.addEventListener('click', (e) => {      
+    e.preventDefault();
+    addItemToCart(form);
+  });  
+}  
+
+DG.FetchifyCart('.dg-btn-direct-checkout');
+</script>
