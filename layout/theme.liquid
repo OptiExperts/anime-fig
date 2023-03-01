@@ -92,7 +92,7 @@
       {%- if current_page != 1 %}
         &ndash; Page {{ current_page }}{% endif -%}
       {%- unless page_title contains shop.name %}
-        &ndash; Anime Figure Store{% endunless -%}
+        &ndash; {{ shop.name }}{% endunless -%}
     </h1>
 
     {% if page_description %}
